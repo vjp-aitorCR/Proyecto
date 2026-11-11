@@ -1,0 +1,1252 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Punto, set y birra</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+/* Concepto: la página es una pista de pádel y la app funciona dentro de un móvil sobre ella. Azul de pista, amarillo pelota y ámbar cerveza como únicos acentos. */
+:root {
+  --bg: #f3f6fc;
+  --surface: #ffffff;
+  --fg: #0c1630;
+  --muted: #46526f;
+  --line: #d3dae9;
+  --accent-text: #17399a;
+  --court: #17399a;
+  --court-deep: #0f2872;
+  --on-court: #f2f5ff;
+  --on-court-muted: #bccaf2;
+  --ball: #d8ee3b;
+  --on-ball: #0c1630;
+  --beer: #f2a516;
+  --on-beer: #1d1200;
+  --beer-soft: #fdf0d3;
+  --scr-bg: #ffffff;
+  --scr-fg: #0c1630;
+  --scr-muted: #5b6684;
+  --scr-line: #e1e6f2;
+  --scr-soft: #eef2fb;
+  --scr-btn: #17399a;
+  --scr-btn-fg: #f2f5ff;
+  --font-display: "Barlow Condensed", "Arial Narrow", Impact, sans-serif;
+  --font-body: "DM Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a1126;
+    --surface: #121b3a;
+    --fg: #eef1fb;
+    --muted: #a9b4d3;
+    --line: #26335f;
+    --accent-text: #b9cbff;
+    --court: #122f82;
+    --court-deep: #0a1c58;
+    --beer-soft: #2c2210;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a1126;
+  --surface: #121b3a;
+  --fg: #eef1fb;
+  --muted: #a9b4d3;
+  --line: #26335f;
+  --accent-text: #b9cbff;
+  --court: #122f82;
+  --court-deep: #0a1c58;
+  --beer-soft: #2c2210;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 17px; line-height: 1.6; }
+h1, h2, h3 { font-family: var(--font-display); text-transform: uppercase; line-height: 1; margin: 0; text-wrap: balance; }
+p { margin: 0; }
+a { color: inherit; }
+:focus-visible { outline: 3px solid var(--beer); outline-offset: 2px; border-radius: 6px; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.section { padding-block: clamp(56px, 9vw, 108px); }
+.eyebrow { font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-text); }
+.h2 { font-size: clamp(2.3rem, 5.2vw, 3.9rem); font-weight: 800; letter-spacing: 0.005em; }
+.lead { font-size: 1.12rem; color: var(--muted); max-width: 60ch; }
+.sec-head { display: grid; gap: 14px; margin-bottom: clamp(32px, 5vw, 56px); }
+
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px; padding: 0 24px; border-radius: 999px; border: 2px solid transparent; font: 700 1rem/1 var(--font-body); text-decoration: none; cursor: pointer; transition: transform 0.15s ease; }
+.btn:hover { transform: translateY(-2px); }
+.btn-ball { background: var(--ball); color: var(--on-ball); }
+.btn-ghost { border-color: var(--on-court-muted); color: var(--on-court); background: transparent; }
+.btn-court { background: var(--court); color: var(--on-court); }
+
+/* Cabecera y héroe */
+.hero { position: relative; background: var(--court); color: var(--on-court); overflow: hidden; }
+.court-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.court-lines * { fill: none; stroke: rgba(255,255,255,0.15); stroke-width: 3; vector-effect: non-scaling-stroke; }
+.hero > * { position: relative; }
+.topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-block: 18px; }
+.brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+.brand-mark { width: 46px; height: 46px; border-radius: 14px; background: #fff; display: grid; place-items: center; flex: none; }
+.brand-mark svg { width: 38px; height: 38px; }
+.brand-name { font-family: var(--font-display); font-weight: 800; font-size: 1.45rem; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1; }
+.nav { display: flex; align-items: center; gap: 26px; font-size: 0.95rem; font-weight: 500; }
+.nav a { text-decoration: none; color: var(--on-court-muted); }
+.nav a:hover { color: var(--on-court); }
+.nav .btn { min-height: 40px; padding: 0 18px; color: var(--on-ball); font-size: 0.92rem; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 400px); gap: clamp(32px, 6vw, 72px); align-items: center; padding-block: clamp(28px, 5vw, 56px) clamp(40px, 6vw, 72px); }
+.hero h1 { font-size: clamp(3.1rem, 8vw, 6.2rem); font-weight: 800; letter-spacing: 0.005em; margin-top: 14px; }
+.hero h1 span { color: var(--ball); display: block; }
+.hero-sub { margin-top: 22px; max-width: 48ch; font-size: 1.12rem; color: var(--on-court-muted); }
+.try-list { margin: 26px 0 0; padding: 0; list-style: none; display: grid; gap: 12px; max-width: 48ch; counter-reset: paso; }
+.try-list li { counter-increment: paso; display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 12px; align-items: start; font-size: 0.98rem; }
+.try-list li::before { content: counter(paso); width: 32px; height: 32px; border-radius: 50%; background: var(--ball); color: var(--on-ball); font: 800 1.1rem/32px var(--font-display); text-align: center; }
+.hero-cta { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 12px; }
+.hero-phone { display: grid; justify-items: center; }
+
+/* Móvil y app */
+.phone { width: 100%; max-width: 400px; border-radius: 46px; background: #0a0f20; padding: 10px; box-shadow: 0 30px 70px -20px rgba(4, 12, 40, 0.6); }
+.app { position: relative; display: flex; flex-direction: column; height: 740px; background: var(--scr-bg); color: var(--scr-fg); border-radius: 37px; overflow: hidden; font-size: 0.9rem; line-height: 1.4; }
+.app button, .app select, .app input, .app textarea { font-family: var(--font-body); }
+.app-top { display: flex; align-items: center; gap: 10px; padding: 18px 16px 8px; min-height: 66px; flex: none; }
+.app-top .logo { width: 34px; height: 34px; flex: none; }
+.app-top h2 { flex: 1; min-width: 0; font-size: 1.7rem; font-weight: 800; letter-spacing: 0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.icon-btn { min-width: 40px; height: 40px; padding: 0 12px; border: 0; border-radius: 12px; background: var(--scr-soft); color: var(--scr-fg); font-weight: 700; font-size: 0.85rem; cursor: pointer; flex: none; }
+.icon-btn.go { background: var(--scr-btn); color: var(--scr-btn-fg); }
+.app-main { flex: 1; min-height: 0; overflow-y: auto; padding: 6px 16px 18px; display: grid; align-content: start; gap: 12px; }
+.app-nav { flex: none; display: grid; grid-template-columns: repeat(5, 1fr); border-top: 1px solid var(--scr-line); padding: 6px 6px 12px; background: var(--scr-bg); }
+.nav-btn { background: none; border: 0; display: grid; justify-items: center; gap: 2px; padding: 6px 0; border-radius: 12px; color: var(--scr-muted); font-size: 0.68rem; font-weight: 700; cursor: pointer; }
+.nav-btn svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.nav-btn[aria-current="page"] { color: var(--scr-btn); background: var(--scr-soft); }
+
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 2px; background: var(--scr-soft); border-radius: 12px; padding: 3px; }
+.seg button { border: 0; background: none; min-height: 36px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; color: var(--scr-muted); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--scr-bg); color: var(--scr-fg); box-shadow: 0 1px 3px rgba(12, 22, 48, 0.18); }
+.fchips { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; scrollbar-width: none; }
+.fchips::-webkit-scrollbar { display: none; }
+.fchip { flex: none; min-height: 34px; padding: 0 12px; border-radius: 999px; border: 1.5px solid var(--scr-line); background: var(--scr-bg); color: var(--scr-fg); font-weight: 700; font-size: 0.8rem; white-space: nowrap; cursor: pointer; }
+.fchip[aria-pressed="true"] { background: var(--scr-btn); color: var(--scr-btn-fg); border-color: var(--scr-btn); }
+.card { border: 1px solid var(--scr-line); border-radius: 16px; padding: 12px; display: grid; gap: 10px; background: var(--scr-bg); }
+.card.soft { background: var(--scr-soft); border-color: transparent; }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.row > * { min-width: 0; }
+.strong { font-weight: 700; }
+.muted { color: var(--scr-muted); font-size: 0.8rem; }
+.lbl { display: grid; gap: 4px; font-size: 0.75rem; font-weight: 700; color: var(--scr-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+.players { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.av { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 0.8rem; color: #fff; flex: none; }
+.av.free { background: transparent; border: 2px dashed var(--beer); color: var(--scr-fg); }
+.av.sm { width: 28px; height: 28px; font-size: 0.72rem; }
+.chip { display: inline-flex; align-items: center; min-height: 24px; padding: 0 10px; border-radius: 999px; background: var(--scr-soft); font-size: 0.72rem; font-weight: 700; color: var(--scr-fg); white-space: nowrap; }
+.chip.ball { background: var(--ball); color: var(--on-ball); }
+.chip.court { background: var(--scr-btn); color: var(--scr-btn-fg); }
+.chip.beer { background: #fdf0d3; color: #5a3a00; }
+.chip.loss { background: #fde4e1; color: #8f1d12; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sbtn { min-height: 42px; padding: 0 16px; border: 0; border-radius: 12px; background: var(--scr-btn); color: var(--scr-btn-fg); font-weight: 700; font-size: 0.9rem; cursor: pointer; width: 100%; }
+.sbtn.inline { width: auto; min-height: 36px; padding: 0 14px; }
+.sbtn.ghost { background: var(--scr-soft); color: var(--scr-fg); }
+.sbtn.beer { background: var(--beer); color: var(--on-beer); }
+.sbtn.danger { background: #fde4e1; color: #8f1d12; }
+.sbtn:disabled { opacity: 0.55; cursor: not-allowed; }
+.btn-row { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 8px; }
+.inp { min-height: 44px; width: 100%; border: 1.5px solid var(--scr-line); border-radius: 12px; padding: 0 12px; background: var(--scr-bg); color: var(--scr-fg); font-weight: 500; font-size: 0.95rem; text-transform: none; letter-spacing: 0; }
+textarea.inp { padding: 10px 12px; min-height: 76px; resize: vertical; }
+.empty { border: 1.5px dashed var(--scr-line); border-radius: 16px; padding: 22px 16px; display: grid; gap: 10px; justify-items: center; text-align: center; color: var(--scr-muted); }
+.sec-title { font-family: var(--font-display); text-transform: uppercase; font-weight: 800; font-size: 1.15rem; letter-spacing: 0.03em; margin-top: 6px; }
+.slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.slot { min-height: 58px; border-radius: 12px; border: 1.5px solid var(--scr-btn); background: var(--scr-bg); color: var(--scr-fg); display: grid; place-items: center; align-content: center; font-weight: 700; font-variant-numeric: tabular-nums; cursor: pointer; padding: 4px; }
+.slot small { font-weight: 500; font-size: 0.7rem; color: var(--scr-muted); }
+.slot.mine { background: var(--ball); border-color: var(--ball); color: var(--on-ball); }
+.slot.mine small { color: var(--on-ball); }
+.slot:disabled { border-color: transparent; background: var(--scr-soft); color: var(--scr-muted); cursor: not-allowed; }
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; text-align: center; }
+.stat-row div { background: var(--scr-soft); border-radius: 12px; padding: 10px 2px; }
+.stat-row b { display: block; font-family: var(--font-display); font-size: 1.7rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.stat-row span { font-size: 0.66rem; color: var(--scr-muted); }
+.score { display: flex; gap: 6px; flex-wrap: wrap; font-variant-numeric: tabular-nums; }
+.score span { background: var(--scr-soft); border-radius: 8px; padding: 2px 8px; font-weight: 700; }
+.sets { display: grid; grid-template-columns: 56px 1fr 14px 1fr; gap: 8px; align-items: center; }
+.sets .inp { text-align: center; padding: 0 4px; }
+.chk { display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 0 4px; border-bottom: 1px solid var(--scr-line); }
+.chk input { width: 20px; height: 20px; accent-color: var(--scr-btn); }
+.chk-list { max-height: 220px; overflow-y: auto; border: 1px solid var(--scr-line); border-radius: 12px; padding: 0 8px; }
+.post { background: var(--scr-soft); border-radius: 14px; padding: 10px 12px; display: grid; gap: 4px; }
+.sheet-back { position: absolute; inset: 0; background: rgba(8, 14, 36, 0.58); display: flex; align-items: flex-end; z-index: 20; }
+.sheet { background: var(--scr-bg); width: 100%; border-radius: 26px 26px 0 0; padding: 16px 16px 20px; max-height: 94%; overflow-y: auto; display: grid; gap: 12px; }
+.sheet-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.sheet-head h3 { font-size: 1.55rem; font-weight: 800; }
+.err { color: #b42318; font-weight: 700; font-size: 0.85rem; min-height: 0; }
+.toast { position: absolute; left: 16px; right: 16px; bottom: 84px; background: #0c1630; color: #fff; padding: 12px 14px; border-radius: 14px; font-weight: 500; z-index: 30; box-shadow: 0 8px 24px rgba(0,0,0,0.3); }
+.toast[hidden] { display: none; }
+.hint { text-align: center; margin-top: 14px; font-size: 0.85rem; color: var(--on-court-muted); }
+.hint button { background: none; border: 0; color: var(--on-court); text-decoration: underline; font: inherit; cursor: pointer; padding: 4px; }
+
+/* Problema */
+.problem-grid { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: clamp(32px, 6vw, 80px); align-items: start; }
+.big-ratio { font-family: var(--font-display); font-weight: 800; font-size: clamp(7rem, 22vw, 15rem); line-height: 0.85; color: var(--accent-text); font-variant-numeric: tabular-nums; }
+.big-ratio sup { font-size: 0.3em; vertical-align: top; color: var(--muted); letter-spacing: 0.04em; margin-left: 0.15em; }
+.ratio-cap { margin-top: 12px; color: var(--muted); max-width: 30ch; }
+.pain-list { display: grid; margin-top: 32px; }
+.pain { padding-block: 22px; border-top: 1px solid var(--line); display: grid; gap: 6px; }
+.pain:last-child { border-bottom: 1px solid var(--line); }
+.pain h3 { font-size: 1.7rem; font-weight: 700; letter-spacing: 0.01em; }
+.pain p { color: var(--muted); max-width: 52ch; }
+
+/* Funciones */
+.features { background: var(--surface); border-block: 1px solid var(--line); }
+.feat-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 clamp(28px, 5vw, 72px); }
+.feat { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 18px; padding-block: 26px; border-top: 1px solid var(--line); }
+.feat-ico { width: 48px; height: 48px; border-radius: 14px; background: var(--court); color: var(--on-court); display: grid; place-items: center; }
+.feat-ico svg { width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.feat h3 { font-size: 1.6rem; font-weight: 700; margin-bottom: 6px; letter-spacing: 0.01em; }
+.feat p { color: var(--muted); }
+.try { display: inline-block; margin-top: 8px; font-weight: 700; color: var(--accent-text); }
+.birra-band { margin-top: 12px; background: var(--beer); color: var(--on-beer); border-radius: 28px; padding: clamp(26px, 4vw, 44px); display: grid; grid-template-columns: auto minmax(0, 1fr); gap: clamp(18px, 4vw, 40px); align-items: center; }
+.birra-band svg { width: 76px; height: 76px; }
+.birra-band h3 { font-size: clamp(2rem, 4vw, 2.9rem); font-weight: 800; }
+.birra-band p { margin-top: 8px; max-width: 62ch; }
+.birra-band .try { color: var(--on-beer); }
+
+/* Público */
+.audience { background: var(--surface); border-block: 1px solid var(--line); }
+.persona-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 4vw, 48px); }
+.persona { display: grid; gap: 14px; align-content: start; padding-top: 18px; border-top: 4px solid var(--court); }
+.persona:nth-child(2) { border-top-color: var(--ball); }
+.persona:nth-child(3) { border-top-color: var(--beer); }
+.persona h3 { font-size: 1.9rem; font-weight: 800; }
+.persona dl { margin: 0; display: grid; gap: 12px; }
+.persona dt { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-text); }
+.persona dd { margin: 2px 0 0; color: var(--muted); }
+.audience-note { margin-top: clamp(32px, 5vw, 52px); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(24px, 4vw, 48px); }
+.audience-note h3 { font-size: 1.35rem; font-weight: 700; letter-spacing: 0.02em; margin-bottom: 6px; }
+.audience-note p { color: var(--muted); font-size: 0.98rem; }
+
+/* Diferencia */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 20px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; min-width: 640px; }
+th, td { text-align: left; padding: 16px 20px; vertical-align: top; border-bottom: 1px solid var(--line); }
+tr:last-child td { border-bottom: 0; }
+thead th { font-family: var(--font-display); text-transform: uppercase; font-size: 1.25rem; letter-spacing: 0.04em; }
+thead th.us { background: var(--court); color: var(--on-court); }
+td.us { background: var(--beer-soft); font-weight: 500; }
+td.task { font-weight: 700; width: 24%; }
+td.old { color: var(--muted); }
+.why { margin-top: clamp(40px, 6vw, 72px); display: grid; grid-template-columns: 0.8fr 1.2fr; gap: clamp(24px, 5vw, 72px); align-items: start; }
+.why-list { display: grid; gap: 22px; }
+.why-list div { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 16px; }
+.why-list i { width: 14px; height: 14px; border-radius: 50%; background: var(--ball); border: 2px solid var(--court); margin-top: 7px; }
+.why-list b { display: block; font-size: 1.05rem; }
+.why-list span { color: var(--muted); }
+
+/* Contacto */
+.contact { background: var(--court-deep); color: var(--on-court); }
+.contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(32px, 6vw, 80px); align-items: start; }
+.contact .eyebrow { color: var(--ball); }
+.contact .h2 { margin: 12px 0 18px; }
+.contact p.lead { color: var(--on-court-muted); }
+.team { margin-top: 28px; display: flex; align-items: center; gap: 14px; }
+.team .brand-mark { width: 54px; height: 54px; }
+.team b { display: block; font-family: var(--font-display); font-size: 1.4rem; text-transform: uppercase; letter-spacing: 0.03em; line-height: 1.1; }
+.team span { color: var(--on-court-muted); font-size: 0.9rem; }
+.mailbox { margin-top: 22px; display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.mailbox code { font-family: var(--font-body); font-weight: 700; font-size: 1.05rem; background: rgba(255,255,255,0.1); padding: 10px 16px; border-radius: 12px; overflow-wrap: anywhere; user-select: all; }
+.mailbox button { min-height: 42px; padding: 0 16px; font-size: 0.9rem; }
+.form-box { background: var(--surface); color: var(--fg); border-radius: 24px; padding: clamp(22px, 4vw, 36px); display: grid; gap: 16px; }
+.form-box h3 { font-size: 1.9rem; font-weight: 800; }
+.form-box label { display: grid; gap: 6px; font-weight: 700; font-size: 0.92rem; }
+.form-box input, .form-box select { font: 500 1rem var(--font-body); min-height: 48px; padding: 0 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--bg); color: var(--fg); width: 100%; }
+.form-box .fine { font-size: 0.85rem; color: var(--muted); }
+#form-status { min-height: 1.4em; font-weight: 700; color: var(--accent-text); }
+footer { background: var(--court-deep); color: var(--on-court-muted); border-top: 1px solid rgba(255,255,255,0.12); font-size: 0.88rem; }
+footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px 24px; padding-block: 28px; }
+footer .brand-name { color: var(--on-court); font-size: 1.2rem; }
+footer .brand-mark { width: 38px; height: 38px; border-radius: 11px; }
+footer .brand-mark svg { width: 30px; height: 30px; }
+
+@media (max-width: 920px) {
+  .hero-grid, .problem-grid, .why, .contact-grid { grid-template-columns: 1fr; }
+  .persona-grid, .audience-note, .feat-grid { grid-template-columns: 1fr; }
+  .nav a:not(.btn) { display: none; }
+  .hero-phone { order: -1; }
+}
+@media (max-width: 520px) {
+  body { font-size: 16px; }
+  .birra-band { grid-template-columns: 1fr; }
+  .brand-name { font-size: 1.15rem; }
+  .brand-mark { width: 40px; height: 40px; }
+  .hero-cta .btn { width: 100%; }
+  .phone { padding: 6px; border-radius: 38px; }
+  .app { border-radius: 32px; height: 700px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .btn { transition: none; }
+  .btn:hover { transform: none; }
+}
+</style>
+</head>
+<body>
+
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <symbol id="logo" viewBox="0 0 64 64">
+      <g transform="rotate(25 20 30)">
+        <rect x="17.5" y="34" width="5" height="16" rx="2.5" fill="#0f2872"/>
+        <ellipse cx="20" cy="21" rx="12.5" ry="14.5" fill="#17399a"/>
+        <circle cx="15" cy="15" r="1.4" fill="#fff"/><circle cx="20" cy="14" r="1.4" fill="#fff"/><circle cx="25" cy="15" r="1.4" fill="#fff"/>
+        <circle cx="14" cy="21" r="1.4" fill="#fff"/><circle cx="20" cy="20" r="1.4" fill="#fff"/><circle cx="26" cy="21" r="1.4" fill="#fff"/>
+        <circle cx="16" cy="27" r="1.4" fill="#fff"/><circle cx="24" cy="27" r="1.4" fill="#fff"/>
+      </g>
+      <circle cx="46" cy="15" r="8.5" fill="#d8ee3b" stroke="#0c1630" stroke-width="1.6"/>
+      <path d="M38.6 11.6c4 2.2 10 2.2 14.6-.8M38.8 19.6c4-2 9.4-2 13.4.8" fill="none" stroke="#0c1630" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M30 39h13l-2 19h-9z" fill="#f2a516"/>
+      <rect x="29" y="35.5" width="15" height="5" rx="2.5" fill="#fff" stroke="#0c1630" stroke-width="1.2"/>
+      <path d="M46 39h13l-2 19h-9z" fill="#f2a516"/>
+      <rect x="45" y="35.5" width="15" height="5" rx="2.5" fill="#fff" stroke="#0c1630" stroke-width="1.2"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="hero" id="inicio">
+  <svg class="court-lines" viewBox="0 0 400 200" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <rect x="6" y="6" width="388" height="188"/>
+    <line x1="200" y1="6" x2="200" y2="194"/>
+    <line x1="61" y1="6" x2="61" y2="194"/>
+    <line x1="339" y1="6" x2="339" y2="194"/>
+    <line x1="61" y1="100" x2="339" y2="100"/>
+  </svg>
+
+  <div class="wrap">
+    <div class="topbar">
+      <a class="brand" href="#inicio" aria-label="Punto, set y birra, inicio">
+        <span class="brand-mark"><svg viewBox="0 0 64 64" role="img" aria-label="Pelota de pádel, pala y dos vasos de cerveza"><use href="#logo"/></svg></span>
+        <span class="brand-name">Punto, set y birra</span>
+      </a>
+      <nav class="nav" aria-label="Principal">
+        <a href="#problema">El problema</a>
+        <a href="#funciones">Funciones</a>
+        <a href="#publico">Para quién</a>
+        <a href="#ventajas">Ventajas</a>
+        <a class="btn btn-ball" href="#contacto">Contacto</a>
+      </nav>
+    </div>
+
+    <div class="hero-grid">
+      <div>
+        <p class="eyebrow" style="color: var(--ball)">App móvil para aficionados al pádel</p>
+        <h1>Encuentra partido,<span>juega y disfruta.</span></h1>
+        <p class="hero-sub">La aplicación funciona aquí mismo. Busca jugadores por nivel, únete a partidos o crea el tuyo, reserva pista, monta grupos, anota resultados y organiza la birra de después.</p>
+        <ol class="try-list">
+          <li><span>En <b>Partidos</b>, únete a uno al que le falte un jugador.</span></li>
+          <li><span>En <b>Pistas</b>, elige un club, mira los horarios y reserva.</span></li>
+          <li><span>En <b>Mi juego</b>, anota un resultado y organiza la quedada.</span></li>
+        </ol>
+        <div class="hero-cta">
+          <a class="btn btn-ball" href="#funciones">Ver las funciones</a>
+          <a class="btn btn-ghost" href="#contacto">Contacto</a>
+        </div>
+      </div>
+
+      <div class="hero-phone" id="app-wrap">
+        <div class="phone">
+          <div class="app" id="app" aria-label="Aplicación Punto, set y birra">
+            <div class="app-top" id="a-top"></div>
+            <div class="app-main" id="a-main"></div>
+            <nav class="app-nav" id="a-nav" aria-label="Secciones de la app"></nav>
+            <div id="a-layer"></div>
+            <div class="toast" id="a-toast" role="status" aria-live="polite" hidden></div>
+          </div>
+        </div>
+        <p class="hint">Prototipo funcional. <button type="button" id="reset-demo">Reiniciar datos de ejemplo</button></p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="section" id="problema">
+    <div class="wrap problem-grid">
+      <div>
+        <p class="eyebrow">El problema</p>
+        <div class="big-ratio" aria-label="Tres de cuatro jugadores">3<sup>/4</sup></div>
+        <p class="ratio-cap">Tres jugadores confirmados y la pista reservada. Sin el cuarto, no hay partido.</p>
+      </div>
+      <div>
+        <h2 class="h2">Todos quieren jugar. Juntar cuatro es lo difícil.</h2>
+        <div class="pain-list">
+          <div class="pain">
+            <h3>Faltan jugadores</h3>
+            <p>Un partido de pádel son dos parejas. Si un amigo se baja a última hora, la pista se queda a medias o se pierde.</p>
+          </div>
+          <div class="pain">
+            <h3>Niveles que no encajan</h3>
+            <p>Un partido entre un principiante y un jugador de torneo no lo disfruta nadie. Saber el nivel de cada uno lleva preguntas y mensajes.</p>
+          </div>
+          <div class="pain">
+            <h3>Pistas sin hueco visible</h3>
+            <p>Comprobar horarios club por club, en distintas webs y apps, hace que muchos huecos libres nunca se aprovechen.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section features" id="funciones">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Qué hace la aplicación</p>
+        <h2 class="h2">Del "¿quién se apunta?" a la pista, en un minuto.</h2>
+        <p class="lead">Siete funciones para el ciclo completo: encontrar, jugar y quedar después. Cada una se puede probar en el móvil de arriba.</p>
+      </div>
+
+      <div class="feat-grid">
+        <article class="feat">
+          <div class="feat-ico"><svg viewBox="0 0 24 24"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg></div>
+          <div><h3>Buscar jugadores por nivel</h3><p>Filtra por nivel y disponibilidad e invita a tu partido a quien mejor encaje.</p><a class="try" href="#app-wrap" data-goto="jugadores">Probar en la app</a></div>
+        </article>
+        <article class="feat">
+          <div class="feat-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v8M8 12h8"/></svg></div>
+          <div><h3>Crear y unirse a partidos</h3><p>Publica un partido con los huecos que te faltan o apúntate a uno abierto que ya tenga pista.</p><a class="try" href="#app-wrap" data-goto="partidos">Probar en la app</a></div>
+        </article>
+        <article class="feat">
+          <div class="feat-ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M12 5v14M3 12h18"/></svg></div>
+          <div><h3>Buscar y reservar pistas</h3><p>Encuentra clubes, compara precios y reserva la pista desde la misma app.</p><a class="try" href="#app-wrap" data-goto="pistas">Probar en la app</a></div>
+        </article>
+        <article class="feat">
+          <div class="feat-ico"><svg viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg></div>
+          <div><h3>Horarios y disponibilidad</h3><p>Consulta de un vistazo qué horas están libres cada día en cada club.</p><a class="try" href="#app-wrap" data-goto="pistas">Probar en la app</a></div>
+        </article>
+        <article class="feat">
+          <div class="feat-ico"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9" r="2.6"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5M16 14.2c2.7-.3 4.6 1.2 5 4.8"/></svg></div>
+          <div><h3>Grupos de amigos</h3><p>Crea tu grupo fijo y avisa a todos a la vez cuando haya una pista libre.</p><a class="try" href="#app-wrap" data-goto="grupos">Probar en la app</a></div>
+        </article>
+        <article class="feat">
+          <div class="feat-ico"><svg viewBox="0 0 24 24"><path d="M5 20V12M12 20V5M19 20V9"/></svg></div>
+          <div><h3>Resultados y estadísticas</h3><p>Anota los sets de cada partido y mira tu evolución: victorias, rachas y porcentaje.</p><a class="try" href="#app-wrap" data-goto="juego">Probar en la app</a></div>
+        </article>
+      </div>
+
+      <div class="birra-band">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <path d="M16 14h26l-4 40H20z" fill="#fff" fill-opacity="0.9" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
+          <path d="M19.2 26h19.6l-2.6 26H21.8z" fill="currentColor" fill-opacity="0.28"/>
+          <path d="M42 22h6a5 5 0 0 1 0 14h-8" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <div>
+          <h3>Organizar quedadas después de jugar</h3>
+          <p>El partido termina y la conversación sigue. Propón sitio y hora, mira quién se apunta y convierte cuatro desconocidos en un grupo que vuelve a jugar.</p>
+          <a class="try" href="#app-wrap" data-goto="juego">Probar en la app</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section audience" id="publico">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Para quién es</p>
+        <h2 class="h2">Para cualquiera que quiera jugar un partido.</h2>
+        <p class="lead">Jóvenes y adultos de cualquier edad, desde quien coge una pala por primera vez hasta quien compite cada fin de semana.</p>
+      </div>
+
+      <div class="persona-grid">
+        <article class="persona">
+          <h3>Principiante</h3>
+          <dl>
+            <div><dt>Necesita</dt><dd>Jugadores con su mismo nivel para aprender sin presión y sin tener que montar un grupo desde cero.</dd></div>
+            <div><dt>Gana</dt><dd>Partidos a su medida y gente nueva con la que seguir jugando.</dd></div>
+          </dl>
+        </article>
+        <article class="persona">
+          <h3>Jugador habitual</h3>
+          <dl>
+            <div><dt>Necesita</dt><dd>Completar el partido de cada semana y reservar pista sin perder tiempo en chats.</dd></div>
+            <div><dt>Gana</dt><dd>Horas ahorradas, partidos que siempre salen y un grupo más grande de contactos.</dd></div>
+          </dl>
+        </article>
+        <article class="persona">
+          <h3>Jugador experimentado</h3>
+          <dl>
+            <div><dt>Necesita</dt><dd>Rivales y compañeros de su categoría y un registro de resultados fiable.</dd></div>
+            <div><dt>Gana</dt><dd>Partidos exigentes, estadísticas de su evolución y más opciones de horario.</dd></div>
+          </dl>
+        </article>
+      </div>
+
+      <div class="audience-note">
+        <div><h3>Qué buscan</h3><p>Compañeros disponibles, personas de un nivel parecido, reservas fáciles y conocer a otros aficionados.</p></div>
+        <div><h3>Qué ganan</h3><p>Tiempo, una agenda deportiva más llena y más ganas de jugar cada semana.</p></div>
+        <div><h3>Por qué desarrollarla</h3><p>Facilita organizar partidos, ayuda a conocer jugadores nuevos y permite aprovechar mejor las pistas disponibles.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="ventajas">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="eyebrow">Qué nos hace diferentes</p>
+        <h2 class="h2">Todo el partido en un solo sitio.</h2>
+        <p class="lead">Hoy organizar un partido implica grupos de WhatsApp, webs de clubes y mensajes sueltos. Punto, set y birra reúne búsqueda de jugadores, partidos, reservas y quedadas con un diseño sencillo y un ambiente cercano.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th scope="col">Tarea</th><th scope="col">Como se hace hoy</th><th scope="col" class="us">Con Punto, set y birra</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="task">Completar el cuarto jugador</td><td class="old">Mensajes uno a uno en varios grupos de WhatsApp.</td><td class="us">Publicas el partido y se apunta quien tiene hueco.</td></tr>
+            <tr><td class="task">Encontrar un nivel parecido</td><td class="old">Preguntar "¿y tú qué nivel tienes?" antes de cada partido.</td><td class="us">Filtras por nivel desde el principio.</td></tr>
+            <tr><td class="task">Reservar pista</td><td class="old">Una app o web distinta para cada club.</td><td class="us">Consultas horarios y reservas desde el partido.</td></tr>
+            <tr><td class="task">Anotar el resultado</td><td class="old">En la memoria de alguien, si se acuerda.</td><td class="us">Guardas sets y ves estadísticas.</td></tr>
+            <tr><td class="task">Quedar después</td><td class="old">"¿Os venís a tomar algo?" mientras recogéis las palas.</td><td class="us">Organizas la quedada en la misma aplicación.</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="why">
+        <h2 class="h2" style="font-size: clamp(2rem, 4vw, 2.9rem)">Por qué merece existir</h2>
+        <div class="why-list">
+          <div><i></i><p><b>Partidos que se completan</b><span>Con más personas visibles, hay menos partidos cancelados por un hueco sin cubrir.</span></p></div>
+          <div><i></i><p><b>Pistas mejor aprovechadas</b><span>Los huecos libres se ven y se llenan, tanto para los clubes como para los jugadores.</span></p></div>
+          <div><i></i><p><b>Comunidad real</b><span>Quien juega contigo hoy puede ser tu compañero habitual la semana que viene.</span></p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section contact" id="contacto">
+    <div class="wrap contact-grid">
+      <div>
+        <p class="eyebrow">Equipo y contacto</p>
+        <h2 class="h2">Hablemos de pádel.</h2>
+        <p class="lead">Si quieres probar la aplicación, darnos tu opinión o proponernos mejoras, escríbenos.</p>
+        <div class="team">
+          <span class="brand-mark"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo"/></svg></span>
+          <div><b>Equipo Punto, set y birra</b><span>Proyecto educativo de aplicación móvil</span></div>
+        </div>
+        <div class="mailbox">
+          <code id="correo">puntesetybirra@gmail.com</code>
+          <button class="btn btn-ball" type="button" id="copiar">Copiar correo</button>
+        </div>
+        <p class="lead" style="margin-top: 12px; font-size: 0.88rem">Correo ficticio del proyecto.</p>
+      </div>
+
+      <form class="form-box" id="aviso" novalidate>
+        <h3>Avísame cuando esté lista</h3>
+        <label for="aviso-email">Tu correo
+          <input id="aviso-email" type="email" placeholder="nombre@correo.com" autocomplete="email" required>
+        </label>
+        <label for="aviso-nivel">Tu nivel de pádel
+          <select id="aviso-nivel">
+            <option>Iniciación</option>
+            <option selected>Medio</option>
+            <option>Avanzado</option>
+            <option>Competición</option>
+          </select>
+        </label>
+        <button class="btn btn-court" type="submit">Quiero estar en la lista</button>
+        <p id="form-status" role="status" aria-live="polite"></p>
+        <p class="fine">Es un prototipo del proyecto: este formulario no envía ni guarda ningún dato.</p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a class="brand" href="#inicio">
+      <span class="brand-mark"><svg viewBox="0 0 64 64" aria-hidden="true"><use href="#logo"/></svg></span>
+      <span class="brand-name">Punto, set y birra</span>
+    </a>
+    <span>Encuentra partido, juega y disfruta. · Equipo Punto, set y birra · Proyecto educativo 2026</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Datos fijos ---------- */
+  var LEVELS = ['Iniciación', 'Medio', 'Avanzado', 'Competición'];
+  var DAYS = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+  var MONTHS = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+  var SLOTS = ['09:00', '10:30', '12:00', '17:30', '19:00', '20:30', '22:00'];
+  var CLUBS = [
+    { id: 'centro', name: 'Club Centro', zone: 'Centro', courts: 4, price: 24 },
+    { id: 'norte', name: 'Pádel Norte', zone: 'Norte', courts: 6, price: 28 },
+    { id: 'sur', name: 'Raqueta Sur', zone: 'Sur', courts: 3, price: 22 },
+    { id: 'rio', name: 'Club Río', zone: 'Junto al río', courts: 5, price: 30 }
+  ];
+  var PLACES = ['Bar La Red', 'Cervecería El Set', 'Terraza Pelota Amarilla'];
+  var COLORS = ['#17399a', '#0f8a7e', '#8a3fb8', '#c2410c', '#b4235a', '#4b6a0c'];
+  var TITLES = { partidos: 'Partidos', jugadores: 'Jugadores', pistas: 'Pistas', grupos: 'Grupos', juego: 'Mi juego' };
+  var NAV = [
+    ['partidos', 'Partidos', '<circle cx="12" cy="12" r="8"/><path d="M5 8c4 2 10 2 14 0M5 16c4-2 10-2 14 0"/>'],
+    ['jugadores', 'Jugadores', '<circle cx="12" cy="8" r="3.5"/><path d="M5 20c.8-4 3.6-6 7-6s6.2 2 7 6"/>'],
+    ['pistas', 'Pistas', '<rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M12 5v14M3 12h18"/>'],
+    ['grupos', 'Grupos', '<circle cx="9" cy="8" r="3.2"/><circle cx="17" cy="9" r="2.6"/><path d="M3 19c.6-3.2 3-5 6-5s5.4 1.8 6 5M16 14.2c2.7-.3 4.6 1.2 5 4.8"/>'],
+    ['juego', 'Mi juego', '<path d="M5 20V12M12 20V5M19 20V9"/>']
+  ];
+
+  /* ---------- Fechas ---------- */
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function isoOf(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function today0() { var d = new Date(); d.setHours(0, 0, 0, 0); return d; }
+  function dayISO(off) { var d = today0(); d.setDate(d.getDate() + off); return isoOf(d); }
+  function parseISO(s) { var p = s.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function dayDiff(s) { return Math.round((parseISO(s) - today0()) / 86400000); }
+  function dayLabel(s) {
+    var n = dayDiff(s);
+    if (n === 0) return 'Hoy';
+    if (n === 1) return 'Mañana';
+    var d = parseISO(s);
+    return DAYS[d.getDay()] + ' ' + d.getDate();
+  }
+  function dayFull(s) { var d = parseISO(s); return DAYS[d.getDay()] + ' ' + d.getDate() + ' ' + MONTHS[d.getMonth()]; }
+  function isPast(day, time) {
+    var n = dayDiff(day);
+    if (n < 0) return true;
+    if (n > 0) return false;
+    var t = time.split(':'), now = new Date();
+    return (+t[0]) * 60 + (+t[1]) <= now.getHours() * 60 + now.getMinutes();
+  }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function money(n) { return String(Math.round(n * 10) / 10).replace('.', ',') + ' €'; }
+
+  /* ---------- Estado ---------- */
+  var KEY = 'punto-set-y-birra-v1';
+  function seed() {
+    return {
+      v: 1, nextId: 100, me: { level: 1 },
+      players: [
+        { id: 1, name: 'Dani R.', level: 1, zone: 'Centro', avail: 'Hoy 20:30', today: true },
+        { id: 2, name: 'Lucía F.', level: 1, zone: 'Centro', avail: 'Jueves y sábado', today: false },
+        { id: 3, name: 'Pablo S.', level: 1, zone: 'Norte', avail: 'Fines de semana', today: false },
+        { id: 4, name: 'Marta G.', level: 2, zone: 'Centro', avail: 'Hoy y mañana por la tarde', today: true },
+        { id: 5, name: 'Carlos M.', level: 0, zone: 'Sur', avail: 'Tardes entre semana', today: false },
+        { id: 6, name: 'Sara L.', level: 0, zone: 'Norte', avail: 'Hoy 19:00', today: true },
+        { id: 7, name: 'Iván P.', level: 3, zone: 'Centro', avail: 'Noches', today: false },
+        { id: 8, name: 'Elena T.', level: 2, zone: 'Junto al río', avail: 'Mañanas y fines de semana', today: false },
+        { id: 9, name: 'Javi B.', level: 2, zone: 'Norte', avail: 'Hoy 22:00', today: true },
+        { id: 10, name: 'Nuria C.', level: 1, zone: 'Junto al río', avail: 'Tardes', today: false },
+        { id: 11, name: 'Rubén A.', level: 3, zone: 'Sur', avail: 'Fines de semana', today: false },
+        { id: 12, name: 'Paula D.', level: 0, zone: 'Centro', avail: 'Hoy 17:30', today: true }
+      ],
+      matches: [
+        { id: 1, day: dayISO(1), time: '20:30', clubId: 'centro', court: 4, level: 1, players: [4, 1, 2], host: 4 },
+        { id: 2, day: dayISO(1), time: '19:00', clubId: 'norte', court: 2, level: 2, players: [9, 8], host: 9 },
+        { id: 3, day: dayISO(0), time: '22:00', clubId: 'sur', court: 1, level: 0, players: [5, 6, 12], host: 5 },
+        { id: 4, day: dayISO(2), time: '10:30', clubId: 'rio', court: 3, level: 1, players: [10, 3], host: 10 },
+        { id: 5, day: dayISO(3), time: '17:30', clubId: 'centro', court: 1, level: 3, players: [7, 11], host: 7 }
+      ],
+      reservations: [],
+      groups: [
+        { id: 1, name: 'Los del jueves', members: [1, 2, 3], posts: [{ text: '¿Jugamos el jueves a las 20:30?', who: 1, when: 'Ayer' }] },
+        { id: 2, name: 'Pádel de la oficina', members: [4, 9, 10], posts: [] }
+      ],
+      history: [
+        { id: 1, day: dayISO(-2), clubId: 'centro', partner: 4, rivals: [3, 2], sets: [[6, 3], [3, 6], [7, 5]] },
+        { id: 2, day: dayISO(-5), clubId: 'norte', partner: 1, rivals: [9, 8], sets: [[6, 4], [6, 2]] },
+        { id: 3, day: dayISO(-9), clubId: 'centro', partner: 4, rivals: [7, 11], sets: [[2, 6], [4, 6]] },
+        { id: 4, day: dayISO(-14), clubId: 'rio', partner: 10, rivals: [3, 2], sets: [[6, 3], [6, 3]] },
+        { id: 5, day: dayISO(-21), clubId: 'sur', partner: 1, rivals: [5, 6], sets: [[6, 4], [5, 7], [6, 3]] }
+      ],
+      meetups: [
+        { id: 1, place: 'Bar La Red', day: dayISO(1), time: '22:15', note: 'Después del partido de Marta', going: [4, 1, 2] },
+        { id: 2, place: 'Terraza Pelota Amarilla', day: dayISO(2), time: '12:30', note: 'Cañas al salir de la pista', going: [10, 3] }
+      ]
+    };
+  }
+  function load() {
+    try {
+      var raw = localStorage.getItem(KEY);
+      if (!raw) return null;
+      var s = JSON.parse(raw);
+      if (!s || s.v !== 1) return null;
+      s.matches = s.matches.filter(function (m) { return dayDiff(m.day) >= 0; });
+      s.reservations = s.reservations.filter(function (r) { return dayDiff(r.day) >= 0; });
+      return s;
+    } catch (e) { return null; }
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* sin almacenamiento */ } }
+  var S = load() || seed();
+  var ui = { tab: 'partidos', mView: 'abiertos', mLevel: -1, pq: '', pLevel: -1, pToday: false, cq: '', cDay: dayISO(0), club: null, group: null };
+
+  /* ---------- Utilidades de datos ---------- */
+  function clubOf(id) { return CLUBS.filter(function (c) { return c.id === id; })[0]; }
+  function playerOf(id) { return S.players.filter(function (p) { return p.id === id; })[0]; }
+  function who(id) {
+    if (id === 'me') return { name: 'Tú', ini: 'Tú', color: '#0c1630' };
+    var p = playerOf(id);
+    return p ? { name: p.name, ini: p.name.charAt(0), color: COLORS[p.id % COLORS.length] } : { name: '?', ini: '?', color: '#666' };
+  }
+  function av(id, small) { var w = who(id); return '<span class="av' + (small ? ' sm' : '') + '" style="background:' + w.color + '" title="' + esc(w.name) + '">' + esc(w.ini) + '</span>'; }
+  function hash(s) { var h = 7; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h; }
+  function busyByOthers(club, day, time, c) { return hash(club.id + '|' + day + '|' + time + '|' + c) % 100 < 42; }
+  function courtsFor(club, day, time) {
+    var out = [];
+    for (var c = 1; c <= club.courts; c++) {
+      var mine = S.reservations.some(function (r) { return r.clubId === club.id && r.day === day && r.time === time && r.court === c; });
+      out.push({ c: c, state: mine ? 'mine' : (busyByOthers(club, day, time, c) ? 'busy' : 'free') });
+    }
+    return out;
+  }
+  function freeList(club, day, time) { return courtsFor(club, day, time).filter(function (x) { return x.state === 'free'; }).map(function (x) { return x.c; }); }
+  function myRes(club, day, time) { return S.reservations.filter(function (r) { return r.clubId === club.id && r.day === day && r.time === time; })[0]; }
+  function slotInfo(club, day, time) {
+    if (isPast(day, time)) return { st: 'past', n: 0 };
+    if (myRes(club, day, time)) return { st: 'mine', n: 0 };
+    var n = freeList(club, day, time).length;
+    return { st: n ? 'free' : 'full', n: n };
+  }
+  function myMatchAt(day, time) { return S.matches.filter(function (m) { return m.day === day && m.time === time && m.players.indexOf('me') > -1; })[0]; }
+  function sortMatches(a, b) { return (a.day + a.time) < (b.day + b.time) ? -1 : 1; }
+  function matchLabel(m) { return dayLabel(m.day) + ' ' + m.time + ' · ' + clubOf(m.clubId).name; }
+  function nextId() { return S.nextId++; }
+  function stats() {
+    var h = S.history.slice().sort(function (a, b) { return a.day < b.day ? 1 : (a.day > b.day ? -1 : b.id - a.id); });
+    var wins = h.filter(winOf).length, streak = 0;
+    for (var i = 0; i < h.length; i++) { if (winOf(h[i])) streak++; else break; }
+    return { total: h.length, wins: wins, pct: h.length ? Math.round(wins / h.length * 100) : 0, streak: streak, list: h };
+  }
+  function winOf(h) { var a = 0, b = 0; h.sets.forEach(function (s) { if (s[0] > s[1]) a++; else b++; }); return a > b; }
+
+  /* ---------- Acciones de datos ---------- */
+  function createMatch(o) {
+    var club = clubOf(o.clubId);
+    if (isPast(o.day, o.time)) return { error: 'Esa hora ya ha pasado. Elige otra.' };
+    if (myMatchAt(o.day, o.time)) return { error: 'Ya tienes un partido a esa hora.' };
+    var free = freeList(club, o.day, o.time);
+    if (!free.length) return { error: 'No quedan pistas libres a esa hora en ' + club.name + '. Prueba otra hora u otro club.' };
+    var id = nextId(), court = free[0];
+    S.reservations.push({ id: nextId(), clubId: club.id, day: o.day, time: o.time, court: court, matchId: id });
+    var m = { id: id, day: o.day, time: o.time, clubId: club.id, court: court, level: o.level, players: ['me'], host: 'me' };
+    S.matches.push(m);
+    save();
+    return { match: m };
+  }
+  function removeMatch(id) {
+    S.matches = S.matches.filter(function (m) { return m.id !== id; });
+    S.reservations = S.reservations.filter(function (r) { return r.matchId !== id; });
+  }
+
+  /* ---------- Interfaz base ---------- */
+  var elTop = document.getElementById('a-top');
+  var elMain = document.getElementById('a-main');
+  var elNav = document.getElementById('a-nav');
+  var elLayer = document.getElementById('a-layer');
+  var elToast = document.getElementById('a-toast');
+  var toastTimer = null, lastKey = '';
+
+  function toast(msg) {
+    elToast.textContent = msg;
+    elToast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { elToast.hidden = true; }, 3200);
+  }
+
+  /* Hojas modales */
+  var sheetToken = null;
+  function closeSheet() { elLayer.innerHTML = ''; sheetToken = null; }
+  function openSheet(o) {
+    var token = {};
+    sheetToken = token;
+    var acts = (o.actions || []).map(function (a, i) {
+      return '<button type="button" class="sbtn ' + (a.kind || '') + '" data-sheet="' + i + '">' + esc(a.label) + '</button>';
+    }).join('');
+    elLayer.innerHTML =
+      '<div class="sheet-back" data-act="sheet-bg"><div class="sheet" role="dialog" aria-modal="true" aria-label="' + esc(o.title) + '" tabindex="-1">' +
+      '<div class="sheet-head"><h3>' + esc(o.title) + '</h3><button type="button" class="icon-btn" data-act="sheet-close" aria-label="Cerrar">✕</button></div>' +
+      o.body + '<p class="err" id="sheet-err" role="alert"></p><div class="btn-row">' + acts + '</div></div></div>';
+    var sh = elLayer.querySelector('.sheet');
+    sh.addEventListener('click', function (e) {
+      var b = e.target.closest('[data-sheet]');
+      if (!b) return;
+      var a = o.actions[+b.getAttribute('data-sheet')];
+      var res = a.run(sh);
+      if (typeof res === 'string' && res) { sh.querySelector('#sheet-err').textContent = res; return; }
+      if (sheetToken === token) closeSheet();
+    });
+    var first = sh.querySelector('input, select, textarea, [data-sheet]') || sh;
+    first.focus();
+  }
+  function v(sh, id) { return sh.querySelector('#' + id).value; }
+  function opts(list, sel) { return list.map(function (o) { return '<option value="' + esc(o[0]) + '"' + (String(o[0]) === String(sel) ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join(''); }
+  function dayOpts(sel) { var a = []; for (var i = 0; i < 7; i++) { var d = dayISO(i); a.push([d, dayLabel(d) + (i > 1 ? '' : ' · ' + dayFull(d))]); } return opts(a, sel); }
+  function timeOpts(sel) { return opts(SLOTS.map(function (t) { return [t, t]; }), sel); }
+  function clubOpts(sel) { return opts(CLUBS.map(function (c) { return [c.id, c.name + ' · ' + money(c.price)]; }), sel); }
+  function levelOpts(sel) { return opts(LEVELS.map(function (l, i) { return [i, l]; }), sel); }
+  function playerOpts(sel, skip) { return opts(S.players.filter(function (p) { return skip.indexOf(p.id) < 0; }).map(function (p) { return [p.id, p.name + ' · ' + LEVELS[p.level]]; }), sel); }
+
+  /* ---------- Render ---------- */
+  function render() {
+    renderTop();
+    var key = ui.tab + '|' + ui.mView + '|' + ui.club + '|' + ui.group;
+    var prev = key === lastKey ? elMain.scrollTop : 0;
+    var html = '';
+    if (ui.tab === 'partidos') html = viewMatches();
+    else if (ui.tab === 'jugadores') html = viewPlayers();
+    else if (ui.tab === 'pistas') html = ui.club ? viewClub() : viewCourts();
+    else if (ui.tab === 'grupos') html = ui.group ? viewGroup() : viewGroups();
+    else html = viewGame();
+    elMain.innerHTML = html;
+    elMain.scrollTop = prev;
+    lastKey = key;
+    elNav.innerHTML = NAV.map(function (n) {
+      return '<button type="button" class="nav-btn" data-act="tab" data-v="' + n[0] + '"' + (ui.tab === n[0] ? ' aria-current="page"' : '') + '><svg viewBox="0 0 24 24" aria-hidden="true">' + n[2] + '</svg>' + n[1] + '</button>';
+    }).join('');
+  }
+  function renderTop() {
+    var t = ui.tab, title = TITLES[t], lead = '<svg class="logo" viewBox="0 0 64 64" aria-hidden="true"><use href="#logo"/></svg>', act = '';
+    if (t === 'pistas' && ui.club) { lead = '<button type="button" class="icon-btn" data-act="back" aria-label="Volver">←</button>'; title = clubOf(ui.club).name; }
+    if (t === 'grupos' && ui.group) { lead = '<button type="button" class="icon-btn" data-act="back" aria-label="Volver">←</button>'; title = groupOf(ui.group) ? groupOf(ui.group).name : 'Grupo'; }
+    if (t === 'partidos') act = '<button type="button" class="icon-btn go" data-act="new-match">+ Crear</button>';
+    if (t === 'grupos' && !ui.group) act = '<button type="button" class="icon-btn go" data-act="new-group">+ Nuevo</button>';
+    elTop.innerHTML = lead + '<h2>' + esc(title) + '</h2>' + act;
+  }
+  function groupOf(id) { return S.groups.filter(function (g) { return g.id === id; })[0]; }
+
+  /* Partidos */
+  function matchCard(m) {
+    var club = clubOf(m.clubId), n = m.players.length, free = 4 - n, mine = m.players.indexOf('me') > -1;
+    var avs = m.players.map(function (p) { return av(p); }).join('');
+    for (var i = 0; i < free; i++) avs += '<span class="av free">+</span>';
+    var chips = '<span class="chip">' + LEVELS[m.level] + '</span><span class="chip">' + money(club.price / 4) + ' por jugador</span>';
+    if (m.level === S.me.level && !mine) chips += '<span class="chip ball">Tu nivel</span>';
+    var btns = '';
+    if (mine && n === 4) btns = '<div class="btn-row"><button type="button" class="sbtn" data-act="result" data-id="' + m.id + '">Anotar resultado</button><button type="button" class="sbtn ghost" data-act="leave" data-id="' + m.id + '">' + (m.host === 'me' ? 'Cancelar' : 'Salir') + '</button></div>';
+    else if (mine) btns = '<button type="button" class="sbtn ghost" data-act="leave" data-id="' + m.id + '">' + (m.host === 'me' ? 'Cancelar partido' : 'Salir del partido') + '</button>';
+    else if (n < 4) btns = '<button type="button" class="sbtn" data-act="join" data-id="' + m.id + '">Unirme al partido</button>';
+    return '<article class="card"><div class="row"><span class="strong">' + dayLabel(m.day) + ' · ' + m.time + '</span><span class="chip ' + (free ? 'ball' : 'court') + '">' + (free === 0 ? 'Completo' : (free === 1 ? 'Falta 1' : 'Faltan ' + free)) + '</span></div>' +
+      '<div class="muted">' + esc(club.name) + ' · Pista ' + m.court + ' · 90 min</div><div class="players">' + avs + '</div><div class="chips">' + chips + '</div>' + btns + '</article>';
+  }
+  function viewMatches() {
+    var h = '<div class="seg" role="group" aria-label="Vista"><button type="button" data-act="mview" data-v="abiertos" aria-pressed="' + (ui.mView === 'abiertos') + '">Abiertos</button><button type="button" data-act="mview" data-v="mis" aria-pressed="' + (ui.mView === 'mis') + '">Mis partidos</button></div>';
+    var all = S.matches.filter(function (m) { return !isPast(m.day, m.time); }).sort(sortMatches), list;
+    if (ui.mView === 'abiertos') {
+      h += '<div class="fchips" role="group" aria-label="Filtrar por nivel"><button type="button" class="fchip" data-act="mlevel" data-v="-1" aria-pressed="' + (ui.mLevel === -1) + '">Todos</button>' +
+        LEVELS.map(function (l, i) { return '<button type="button" class="fchip" data-act="mlevel" data-v="' + i + '" aria-pressed="' + (ui.mLevel === i) + '">' + l + '</button>'; }).join('') + '</div>';
+      list = all.filter(function (m) { return m.players.indexOf('me') < 0 && m.players.length < 4 && (ui.mLevel < 0 || m.level === ui.mLevel); });
+      h += list.length ? list.map(matchCard).join('') : '<div class="empty"><p>No hay partidos abiertos con ese nivel.</p><button type="button" class="sbtn inline" data-act="new-match">Crear uno</button></div>';
+    } else {
+      list = all.filter(function (m) { return m.players.indexOf('me') > -1; });
+      h += list.length ? list.map(matchCard).join('') : '<div class="empty"><p>Todavía no tienes partidos. Únete a uno abierto o crea el tuyo.</p><button type="button" class="sbtn inline" data-act="new-match">Crear partido</button></div>';
+    }
+    return h;
+  }
+
+  /* Jugadores */
+  function playerRows() {
+    var q = ui.pq.trim().toLowerCase();
+    var list = S.players.filter(function (p) {
+      return (ui.pLevel < 0 || p.level === ui.pLevel) && (!ui.pToday || p.today) && (!q || (p.name + ' ' + p.zone).toLowerCase().indexOf(q) > -1);
+    });
+    if (!list.length) return '<div class="empty"><p>Ningún jugador coincide con esos filtros.</p></div>';
+    return list.map(function (p) {
+      return '<article class="card"><div class="row"><div class="players">' + av(p.id) + '<div><div class="strong">' + esc(p.name) + '</div><div class="muted">' + esc(p.zone) + ' · ' + esc(p.avail) + '</div></div></div><span class="chip' + (p.level === S.me.level ? ' ball' : '') + '">' + LEVELS[p.level] + '</span></div>' +
+        '<button type="button" class="sbtn ghost" data-act="invite" data-id="' + p.id + '">Invitar a un partido</button></article>';
+    }).join('');
+  }
+  function viewPlayers() {
+    return '<input class="inp" id="pq" type="search" placeholder="Buscar por nombre o zona" aria-label="Buscar jugadores" value="' + esc(ui.pq) + '">' +
+      '<div class="fchips" role="group" aria-label="Filtrar por nivel"><button type="button" class="fchip" data-act="plevel" data-v="-1" aria-pressed="' + (ui.pLevel === -1) + '">Todos</button>' +
+      LEVELS.map(function (l, i) { return '<button type="button" class="fchip" data-act="plevel" data-v="' + i + '" aria-pressed="' + (ui.pLevel === i) + '">' + l + '</button>'; }).join('') +
+      '<button type="button" class="fchip" data-act="ptoday" aria-pressed="' + ui.pToday + '">Disponibles hoy</button></div>' +
+      '<div id="plist" style="display:grid;gap:12px">' + playerRows() + '</div>';
+  }
+
+  /* Pistas */
+  function dayChips() {
+    var h = '<div class="fchips" role="group" aria-label="Día">';
+    for (var i = 0; i < 7; i++) { var d = dayISO(i); h += '<button type="button" class="fchip" data-act="cday" data-v="' + d + '" aria-pressed="' + (ui.cDay === d) + '">' + dayLabel(d) + '</button>'; }
+    return h + '</div>';
+  }
+  function clubRows() {
+    var q = ui.cq.trim().toLowerCase();
+    var list = CLUBS.filter(function (c) { return !q || (c.name + ' ' + c.zone).toLowerCase().indexOf(q) > -1; });
+    if (!list.length) return '<div class="empty"><p>No hay clubes con ese nombre o zona.</p></div>';
+    return list.map(function (c) {
+      var n = SLOTS.filter(function (t) { return slotInfo(c, ui.cDay, t).st === 'free'; }).length;
+      return '<article class="card"><div class="row"><div><div class="strong">' + esc(c.name) + '</div><div class="muted">' + esc(c.zone) + ' · ' + c.courts + ' pistas</div></div><span class="chip ' + (n ? 'ball' : '') + '">' + (n ? n + ' horarios libres' : 'Sin huecos') + '</span></div>' +
+        '<div class="muted">' + money(c.price) + ' la pista · ' + money(c.price / 4) + ' por jugador</div><button type="button" class="sbtn" data-act="club" data-id="' + c.id + '">Ver horarios</button></article>';
+    }).join('');
+  }
+  function viewCourts() {
+    var h = '';
+    var mine = S.reservations.slice().sort(sortMatches);
+    if (mine.length) {
+      h += '<div class="sec-title">Mis reservas</div>' + mine.map(function (r) {
+        var c = clubOf(r.clubId);
+        return '<article class="card soft"><div class="row"><div><div class="strong">' + esc(c.name) + ' · Pista ' + r.court + '</div><div class="muted">' + dayFull(r.day) + ' · ' + r.time + ' · 90 min</div></div>' + (r.matchId ? '<span class="chip court">Con partido</span>' : '<span class="chip">Sin partido</span>') + '</div>' +
+          '<button type="button" class="sbtn danger" data-act="cancel-res" data-id="' + r.id + '">Cancelar reserva</button></article>';
+      }).join('');
+    }
+    h += '<div class="sec-title">Buscar pista</div><input class="inp" id="cq" type="search" placeholder="Club o zona" aria-label="Buscar clubes" value="' + esc(ui.cq) + '">' + dayChips() + '<div id="clist" style="display:grid;gap:12px">' + clubRows() + '</div>';
+    return h;
+  }
+  function viewClub() {
+    var c = clubOf(ui.club), h = dayChips() + '<p class="muted">' + c.courts + ' pistas · ' + money(c.price) + ' la pista de 90 minutos. Toca un horario para reservar.</p><div class="slots">';
+    SLOTS.forEach(function (t) {
+      var s = slotInfo(c, ui.cDay, t), label = s.st === 'mine' ? 'Tuya' : (s.st === 'past' ? 'Pasada' : (s.st === 'full' ? 'Completa' : s.n + (s.n === 1 ? ' pista' : ' pistas')));
+      h += '<button type="button" class="slot' + (s.st === 'mine' ? ' mine' : '') + '" data-act="slot" data-v="' + t + '"' + (s.st === 'free' ? '' : ' disabled') + '>' + t + '<small>' + label + '</small></button>';
+    });
+    return h + '</div>';
+  }
+
+  /* Grupos */
+  function viewGroups() {
+    if (!S.groups.length) return '<div class="empty"><p>Crea un grupo con tus compañeros habituales y avísales de golpe.</p><button type="button" class="sbtn inline" data-act="new-group">Crear grupo</button></div>';
+    return S.groups.map(function (g) {
+      return '<article class="card"><div class="row"><span class="strong">' + esc(g.name) + '</span><span class="chip">' + g.members.length + (g.members.length === 1 ? ' jugador' : ' jugadores') + '</span></div>' +
+        '<div class="players">' + g.members.slice(0, 6).map(function (m) { return av(m, true); }).join('') + '</div>' +
+        '<button type="button" class="sbtn ghost" data-act="group" data-id="' + g.id + '">Abrir grupo</button></article>';
+    }).join('');
+  }
+  function viewGroup() {
+    var g = groupOf(ui.group);
+    if (!g) { ui.group = null; return viewGroups(); }
+    var h = '<div class="btn-row"><button type="button" class="sbtn" data-act="notify" data-id="' + g.id + '">Avisar al grupo</button><button type="button" class="sbtn ghost" data-act="add-member" data-id="' + g.id + '">Añadir jugador</button></div>';
+    h += '<div class="sec-title">Miembros</div>';
+    h += g.members.length ? g.members.map(function (id) {
+      var p = playerOf(id);
+      return '<div class="card"><div class="row"><div class="players">' + av(id) + '<div><div class="strong">' + esc(p.name) + '</div><div class="muted">' + LEVELS[p.level] + ' · ' + esc(p.zone) + '</div></div></div><button type="button" class="sbtn ghost inline" data-act="rm-member" data-id="' + id + '">Quitar</button></div></div>';
+    }).join('') : '<div class="empty"><p>Este grupo no tiene miembros.</p></div>';
+    h += '<div class="sec-title">Avisos</div>';
+    h += g.posts.length ? g.posts.map(function (p) {
+      return '<div class="post"><div class="muted"><b>' + (p.who === 'me' ? 'Tú' : esc(who(p.who).name)) + '</b> · ' + esc(p.when) + '</div><div>' + esc(p.text) + '</div>' + (p.match ? '<div class="chips"><span class="chip ball">' + esc(p.match) + '</span></div>' : '') + '</div>';
+    }).join('') : '<p class="muted">Aún no hay avisos en este grupo.</p>';
+    h += '<button type="button" class="sbtn danger" data-act="del-group" data-id="' + g.id + '">Eliminar grupo</button>';
+    return h;
+  }
+
+  /* Mi juego */
+  function viewGame() {
+    var st = stats();
+    var h = '<label class="lbl">Tu nivel<select class="inp" id="mylevel">' + levelOpts(S.me.level) + '</select></label>';
+    h += '<div class="stat-row"><div><b>' + st.total + '</b><span>Partidos</span></div><div><b>' + st.wins + '</b><span>Victorias</span></div><div><b>' + st.pct + '%</b><span>Ganados</span></div><div><b>' + st.streak + '</b><span>Racha</span></div></div>';
+    h += '<button type="button" class="sbtn" data-act="result">Anotar resultado</button>';
+    h += '<div class="sec-title">Últimos partidos</div>';
+    h += st.list.length ? st.list.map(function (r) {
+      var win = winOf(r), club = clubOf(r.clubId);
+      return '<article class="card"><div class="row"><span class="strong">' + dayFull(r.day) + '</span><span class="chip ' + (win ? 'ball' : 'loss') + '">' + (win ? 'Victoria' : 'Derrota') + '</span></div>' +
+        '<div class="muted">Tú y ' + esc(who(r.partner).name) + ' contra ' + esc(who(r.rivals[0]).name) + ' y ' + esc(who(r.rivals[1]).name) + ' · ' + esc(club.name) + '</div>' +
+        '<div class="score">' + r.sets.map(function (s) { return '<span>' + s[0] + '-' + s[1] + '</span>'; }).join('') + '</div></article>';
+    }).join('') : '<div class="empty"><p>Cuando anotes tu primer resultado aparecerá aquí.</p></div>';
+    h += '<div class="sec-title">Quedadas</div><button type="button" class="sbtn beer" data-act="new-meetup">Organizar quedada</button>';
+    var ms = S.meetups.slice().sort(sortMatches).filter(function (m) { return dayDiff(m.day) >= 0; });
+    h += ms.length ? ms.map(function (m) {
+      var going = m.going.indexOf('me') > -1;
+      return '<article class="card"><div class="row"><span class="strong">' + esc(m.place) + '</span><span class="chip beer">' + dayLabel(m.day) + ' · ' + esc(m.time) + '</span></div>' +
+        (m.note ? '<div class="muted">' + esc(m.note) + '</div>' : '') +
+        '<div class="row"><div class="players">' + m.going.slice(0, 6).map(function (p) { return av(p, true); }).join('') + '</div><span class="muted">' + m.going.length + ' apuntados</span></div>' +
+        '<button type="button" class="sbtn ' + (going ? 'ghost' : 'beer') + '" data-act="toggle-meetup" data-id="' + m.id + '">' + (going ? 'Me bajo' : 'Me apunto') + '</button></article>';
+    }).join('') : '<div class="empty"><p>No hay quedadas próximas. Organiza la primera.</p></div>';
+    return h;
+  }
+
+  /* ---------- Hojas con formularios ---------- */
+  function createMatchSheet(pre) {
+    pre = pre || {};
+    openSheet({
+      title: 'Crear partido',
+      body: '<label class="lbl">Día<select class="inp" id="f-day">' + dayOpts(pre.day || dayISO(1)) + '</select></label>' +
+        '<label class="lbl">Hora<select class="inp" id="f-time">' + timeOpts(pre.time || '20:30') + '</select></label>' +
+        '<label class="lbl">Club<select class="inp" id="f-club">' + clubOpts(pre.clubId || 'centro') + '</select></label>' +
+        '<label class="lbl">Nivel<select class="inp" id="f-lvl">' + levelOpts(pre.level != null ? pre.level : S.me.level) + '</select></label>' +
+        '<p class="muted">Se reserva la primera pista libre y tú ocupas una plaza. Quedarán tres huecos abiertos.</p>',
+      actions: [{
+        label: 'Crear partido', run: function (sh) {
+          var r = createMatch({ day: v(sh, 'f-day'), time: v(sh, 'f-time'), clubId: v(sh, 'f-club'), level: +v(sh, 'f-lvl') });
+          if (r.error) return r.error;
+          ui.tab = 'partidos'; ui.mView = 'mis'; ui.club = null;
+          render();
+          toast('Partido creado. Pista ' + r.match.court + ' reservada en ' + clubOf(r.match.clubId).name + '.');
+        }
+      }]
+    });
+  }
+  function inviteSheet(pid) {
+    var p = playerOf(pid);
+    var mine = S.matches.filter(function (m) { return m.players.indexOf('me') > -1 && m.players.length < 4 && m.players.indexOf(pid) < 0 && !isPast(m.day, m.time); }).sort(sortMatches);
+    if (!mine.length) {
+      openSheet({
+        title: 'Invitar a ' + p.name,
+        body: '<p>No tienes ningún partido con plazas libres. Crea uno y ' + esc(p.name) + ' podrá apuntarse.</p>',
+        actions: [{ label: 'Crear partido', run: function () { createMatchSheet({ level: p.level }); } }]
+      });
+      return;
+    }
+    openSheet({
+      title: 'Invitar a ' + p.name,
+      body: '<label class="lbl">Partido<select class="inp" id="f-match">' + opts(mine.map(function (m) { return [m.id, matchLabel(m)]; })) + '</select></label>',
+      actions: [{
+        label: 'Enviar invitación', run: function (sh) {
+          var m = S.matches.filter(function (x) { return x.id === +v(sh, 'f-match'); })[0];
+          m.players.push(pid);
+          save(); render();
+          toast(p.name + ' ha aceptado y se une a tu partido.');
+        }
+      }]
+    });
+  }
+  function slotSheet(time) {
+    var c = clubOf(ui.club), day = ui.cDay;
+    openSheet({
+      title: 'Reservar pista',
+      body: '<div class="card soft"><div class="strong">' + esc(c.name) + '</div><div class="muted">' + dayFull(day) + ' · ' + time + ' · 90 min</div><div class="strong">' + money(c.price) + ' la pista (' + money(c.price / 4) + ' por jugador)</div></div>' +
+        '<label class="lbl">Nivel si creas partido<select class="inp" id="f-lvl">' + levelOpts(S.me.level) + '</select></label>',
+      actions: [
+        {
+          label: 'Solo reservar', kind: 'ghost', run: function () {
+            var free = freeList(c, day, time);
+            if (!free.length) return 'Se acaba de ocupar la última pista. Elige otro horario.';
+            S.reservations.push({ id: nextId(), clubId: c.id, day: day, time: time, court: free[0], matchId: null });
+            save(); render();
+            toast('Pista ' + free[0] + ' reservada en ' + c.name + '.');
+          }
+        },
+        {
+          label: 'Reservar y crear partido', run: function (sh) {
+            var r = createMatch({ day: day, time: time, clubId: c.id, level: +v(sh, 'f-lvl') });
+            if (r.error) return r.error;
+            ui.tab = 'partidos'; ui.mView = 'mis'; ui.club = null;
+            render();
+            toast('Reserva hecha y partido publicado con tres plazas abiertas.');
+          }
+        }
+      ]
+    });
+  }
+  function newGroupSheet() {
+    openSheet({
+      title: 'Nuevo grupo',
+      body: '<label class="lbl">Nombre del grupo<input class="inp" id="g-name" type="text" maxlength="30" placeholder="Los del sábado"></label>' +
+        '<div class="lbl">Jugadores</div><div class="chk-list">' + S.players.map(function (p) {
+          return '<label class="chk"><input type="checkbox" value="' + p.id + '" aria-label="' + esc(p.name) + '">' + av(p.id, true) + '<span>' + esc(p.name) + ' <span class="muted">· ' + LEVELS[p.level] + '</span></span></label>';
+        }).join('') + '</div>',
+      actions: [{
+        label: 'Crear grupo', run: function (sh) {
+          var name = v(sh, 'g-name').trim();
+          if (!name) return 'Ponle un nombre al grupo.';
+          var ids = [].slice.call(sh.querySelectorAll('.chk input:checked')).map(function (i) { return +i.value; });
+          if (!ids.length) return 'Elige al menos un jugador.';
+          var g = { id: nextId(), name: name, members: ids, posts: [] };
+          S.groups.push(g); ui.group = g.id; save(); render();
+          toast('Grupo "' + name + '" creado.');
+        }
+      }]
+    });
+  }
+  function addMemberSheet(gid) {
+    var g = groupOf(gid), rest = S.players.filter(function (p) { return g.members.indexOf(p.id) < 0; });
+    if (!rest.length) { openSheet({ title: 'Añadir jugador', body: '<p>Ya están todos los jugadores en este grupo.</p>', actions: [] }); return; }
+    openSheet({
+      title: 'Añadir jugador',
+      body: '<label class="lbl">Jugador<select class="inp" id="f-player">' + playerOpts(null, g.members) + '</select></label>',
+      actions: [{ label: 'Añadir al grupo', run: function (sh) { g.members.push(+v(sh, 'f-player')); save(); render(); toast('Jugador añadido a ' + g.name + '.'); } }]
+    });
+  }
+  function notifySheet(gid) {
+    var g = groupOf(gid);
+    var mine = S.matches.filter(function (m) { return m.players.indexOf('me') > -1 && !isPast(m.day, m.time); }).sort(sortMatches);
+    openSheet({
+      title: 'Avisar al grupo',
+      body: '<label class="lbl">Mensaje<textarea class="inp" id="f-msg" maxlength="140">¿Quién se apunta a jugar esta semana?</textarea></label>' +
+        '<label class="lbl">Adjuntar partido<select class="inp" id="f-match"><option value="">Sin partido</option>' + opts(mine.map(function (m) { return [m.id, matchLabel(m)]; })) + '</select></label>',
+      actions: [{
+        label: 'Enviar aviso', run: function (sh) {
+          var text = v(sh, 'f-msg').trim();
+          if (!text) return 'Escribe un mensaje.';
+          var mid = v(sh, 'f-match'), m = mid ? S.matches.filter(function (x) { return x.id === +mid; })[0] : null, d = new Date();
+          g.posts.unshift({ text: text, who: 'me', when: 'Hoy ' + pad(d.getHours()) + ':' + pad(d.getMinutes()), match: m ? matchLabel(m) : '' });
+          save(); render();
+          toast('Aviso enviado a ' + g.members.length + ' jugadores.');
+        }
+      }]
+    });
+  }
+  function confirmSheet(title, text, label, run) {
+    openSheet({ title: title, body: '<p>' + esc(text) + '</p>', actions: [{ label: label, kind: 'danger', run: run }, { label: 'Volver', kind: 'ghost', run: function () {} }] });
+  }
+  function resultSheet(matchId) {
+    var m = matchId ? S.matches.filter(function (x) { return x.id === matchId; })[0] : null;
+    var others = m ? m.players.filter(function (p) { return p !== 'me'; }) : [S.players[0].id, S.players[1].id, S.players[2].id];
+    function setRow(i) {
+      return '<div class="sets"><span class="muted">Set ' + i + (i === 3 ? ' (si hubo)' : '') + '</span><input class="inp" id="s' + i + 'a" type="number" min="0" max="7" inputmode="numeric" aria-label="Set ' + i + ', juegos de tu pareja"><span>-</span><input class="inp" id="s' + i + 'b" type="number" min="0" max="7" inputmode="numeric" aria-label="Set ' + i + ', juegos de los rivales"></div>';
+    }
+    openSheet({
+      title: 'Anotar resultado',
+      body: '<label class="lbl">Tu pareja<select class="inp" id="f-partner">' + playerOpts(others[0], []) + '</select></label>' +
+        '<label class="lbl">Rival 1<select class="inp" id="f-r1">' + playerOpts(others[1], []) + '</select></label>' +
+        '<label class="lbl">Rival 2<select class="inp" id="f-r2">' + playerOpts(others[2], []) + '</select></label>' +
+        '<label class="lbl">Club<select class="inp" id="f-club">' + clubOpts(m ? m.clubId : 'centro') + '</select></label>' +
+        '<div class="lbl">Sets (tú y tu pareja a la izquierda)</div>' + setRow(1) + setRow(2) + setRow(3),
+      actions: [{
+        label: 'Guardar resultado', run: function (sh) {
+          var partner = +v(sh, 'f-partner'), r1 = +v(sh, 'f-r1'), r2 = +v(sh, 'f-r2');
+          if (new Set([partner, r1, r2]).size < 3) return 'Elige tres jugadores distintos.';
+          var sets = [];
+          for (var i = 1; i <= 3; i++) {
+            var a = v(sh, 's' + i + 'a'), b = v(sh, 's' + i + 'b');
+            if (a === '' && b === '') { if (i < 3) return 'Rellena los dos primeros sets.'; continue; }
+            if (a === '' || b === '') return 'Completa los dos marcadores del set ' + i + '.';
+            a = +a; b = +b;
+            if (!(a >= 0 && a <= 7 && b >= 0 && b <= 7) || a % 1 || b % 1) return 'Los juegos de un set van de 0 a 7.';
+            if (a === b) return 'El set ' + i + ' no puede acabar en empate.';
+            sets.push([a, b]);
+          }
+          var wa = sets.filter(function (s) { return s[0] > s[1]; }).length, wb = sets.length - wa;
+          if (Math.max(wa, wb) < 2) return 'El partido se gana al mejor de tres sets. Falta un set.';
+          if (sets.length === 3 && (wa === 2 && wb === 0)) return 'Si un equipo gana los dos primeros sets, no hay tercero.';
+          var entry = { id: nextId(), day: m ? m.day : dayISO(0), clubId: v(sh, 'f-club'), partner: partner, rivals: [r1, r2], sets: sets };
+          S.history.push(entry);
+          if (m) removeMatch(m.id);
+          save(); ui.tab = 'juego'; render();
+          var win = winOf(entry);
+          openSheet({
+            title: win ? 'Victoria guardada' : 'Resultado guardado',
+            body: '<p>' + (win ? 'Ganáis ' : 'Pierdes ') + wa + '-' + wb + ' en sets. Ya cuenta en tus estadísticas.</p><p>¿Organizamos una quedada para después?</p>',
+            actions: [{ label: 'Organizar quedada', kind: 'beer', run: function () { meetupSheet(); } }, { label: 'Ahora no', kind: 'ghost', run: function () {} }]
+          });
+        }
+      }]
+    });
+  }
+  function meetupSheet() {
+    openSheet({
+      title: 'Organizar quedada',
+      body: '<label class="lbl">Sitio<select class="inp" id="f-place">' + opts(PLACES.map(function (p) { return [p, p]; })) + '</select></label>' +
+        '<label class="lbl">Día<select class="inp" id="f-day">' + dayOpts(dayISO(0)) + '</select></label>' +
+        '<label class="lbl">Hora<input class="inp" id="f-time" type="time" value="22:15"></label>' +
+        '<label class="lbl">Nota (opcional)<input class="inp" id="f-note" type="text" maxlength="60" placeholder="Primera ronda a mi cuenta"></label>',
+      actions: [{
+        label: 'Publicar quedada', kind: 'beer', run: function (sh) {
+          var t = v(sh, 'f-time');
+          if (!t) return 'Elige una hora.';
+          if (isPast(v(sh, 'f-day'), t)) return 'Esa hora ya ha pasado. Elige otra.';
+          S.meetups.push({ id: nextId(), place: v(sh, 'f-place'), day: v(sh, 'f-day'), time: t, note: v(sh, 'f-note').trim(), going: ['me'] });
+          save(); ui.tab = 'juego'; render();
+          toast('Quedada publicada. Aparece en Mi juego.');
+        }
+      }]
+    });
+  }
+
+  /* ---------- Eventos ---------- */
+  var appEl = document.getElementById('app');
+  appEl.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-act]');
+    if (!t) return;
+    var act = t.getAttribute('data-act'), val = t.getAttribute('data-v'), id = +t.getAttribute('data-id');
+    var m;
+    switch (act) {
+      case 'sheet-close': closeSheet(); break;
+      case 'sheet-bg': if (e.target === t) closeSheet(); break;
+      case 'tab': ui.tab = val; ui.club = null; ui.group = null; render(); break;
+      case 'back': ui.club = null; ui.group = null; render(); break;
+      case 'mview': ui.mView = val; render(); break;
+      case 'mlevel': ui.mLevel = +val; render(); break;
+      case 'new-match': createMatchSheet(); break;
+      case 'join':
+        m = S.matches.filter(function (x) { return x.id === id; })[0];
+        if (!m || m.players.length >= 4) { toast('Ese partido ya está completo.'); break; }
+        if (myMatchAt(m.day, m.time)) { toast('Ya tienes otro partido a esa hora.'); break; }
+        m.players.push('me'); save(); render();
+        toast(m.players.length === 4 ? 'Te has unido. El partido está completo.' : 'Te has unido al partido. Faltan ' + (4 - m.players.length) + '.');
+        break;
+      case 'leave':
+        m = S.matches.filter(function (x) { return x.id === id; })[0];
+        if (!m) break;
+        if (m.host === 'me') confirmSheet('Cancelar partido', 'Se cancela el partido y se libera la pista ' + m.court + ' de ' + clubOf(m.clubId).name + '.', 'Cancelar partido', function () { removeMatch(m.id); save(); render(); toast('Partido cancelado y pista liberada.'); });
+        else { m.players = m.players.filter(function (p) { return p !== 'me'; }); save(); render(); toast('Has salido del partido.'); }
+        break;
+      case 'result': resultSheet(id || null); break;
+      case 'plevel': ui.pLevel = +val; render(); break;
+      case 'ptoday': ui.pToday = !ui.pToday; render(); break;
+      case 'invite': inviteSheet(id); break;
+      case 'cday': ui.cDay = val; render(); break;
+      case 'club': ui.club = t.getAttribute('data-id'); render(); break;
+      case 'slot': slotSheet(val); break;
+      case 'cancel-res':
+        var r = S.reservations.filter(function (x) { return x.id === id; })[0];
+        if (!r) break;
+        confirmSheet('Cancelar reserva', r.matchId ? 'Esta pista tiene un partido. Al cancelarla, el partido también se cancela.' : 'Se libera la pista para otros jugadores.', 'Cancelar reserva', function () {
+          if (r.matchId) removeMatch(r.matchId); else S.reservations = S.reservations.filter(function (x) { return x.id !== r.id; });
+          save(); render(); toast('Reserva cancelada.');
+        });
+        break;
+      case 'new-group': newGroupSheet(); break;
+      case 'group': ui.group = id; render(); break;
+      case 'add-member': addMemberSheet(id); break;
+      case 'notify': notifySheet(id); break;
+      case 'rm-member':
+        var g = groupOf(ui.group);
+        g.members = g.members.filter(function (x) { return x !== id; }); save(); render(); toast('Jugador quitado del grupo.');
+        break;
+      case 'del-group':
+        confirmSheet('Eliminar grupo', 'Se borra el grupo y sus avisos. Los jugadores siguen en la app.', 'Eliminar grupo', function () { S.groups = S.groups.filter(function (x) { return x.id !== id; }); ui.group = null; save(); render(); toast('Grupo eliminado.'); });
+        break;
+      case 'new-meetup': meetupSheet(); break;
+      case 'toggle-meetup':
+        m = S.meetups.filter(function (x) { return x.id === id; })[0];
+        if (m.going.indexOf('me') > -1) m.going = m.going.filter(function (p) { return p !== 'me'; }); else m.going.push('me');
+        save(); render();
+        break;
+    }
+  });
+  appEl.addEventListener('input', function (e) {
+    if (e.target.id === 'pq') { ui.pq = e.target.value; document.getElementById('plist').innerHTML = playerRows(); }
+    if (e.target.id === 'cq') { ui.cq = e.target.value; document.getElementById('clist').innerHTML = clubRows(); }
+  });
+  appEl.addEventListener('change', function (e) {
+    if (e.target.id === 'mylevel') { S.me.level = +e.target.value; save(); toast('Tu nivel ahora es ' + LEVELS[S.me.level] + '.'); }
+  });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && sheetToken) closeSheet(); });
+
+  document.getElementById('reset-demo').addEventListener('click', function () {
+    S = seed();
+    ui = { tab: 'partidos', mView: 'abiertos', mLevel: -1, pq: '', pLevel: -1, pToday: false, cq: '', cDay: dayISO(0), club: null, group: null };
+    closeSheet(); save(); render(); toast('Datos de ejemplo restaurados.');
+  });
+  [].forEach.call(document.querySelectorAll('[data-goto]'), function (a) {
+    a.addEventListener('click', function (e) {
+      e.preventDefault();
+      ui.tab = a.getAttribute('data-goto'); ui.club = null; ui.group = null; closeSheet(); render();
+      document.getElementById('app-wrap').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  });
+
+  /* ---------- Contacto ---------- */
+  var btn = document.getElementById('copiar'), mail = document.getElementById('correo');
+  btn.addEventListener('click', function () {
+    function fallback() {
+      var r = document.createRange(); r.selectNodeContents(mail);
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      btn.textContent = 'Selecciona y copia';
+    }
+    try {
+      navigator.clipboard.writeText(mail.textContent.trim()).then(function () {
+        btn.textContent = 'Copiado';
+        setTimeout(function () { btn.textContent = 'Copiar correo'; }, 2000);
+      }, fallback);
+    } catch (err) { fallback(); }
+  });
+  var form = document.getElementById('aviso'), status = document.getElementById('form-status'), email = document.getElementById('aviso-email');
+  form.addEventListener('submit', function (ev) {
+    ev.preventDefault();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value.trim())) {
+      status.textContent = 'Escribe un correo válido, por ejemplo nombre@correo.com.';
+      email.focus();
+      return;
+    }
+    status.textContent = 'Gracias. Al ser un prototipo, no se ha guardado nada.';
+  });
+
+  render();
+})();
+</script>
+
+</body>
+</html>
